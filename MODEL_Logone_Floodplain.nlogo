@@ -129,7 +129,7 @@ to setup
   ]
 
   reset-ticks
-  set this-year 1978
+  set this-year 1975
 end
 
 
@@ -231,16 +231,16 @@ end
 
 ; The following function loads the GIS raster with vegetation data
 to load-gis
-  set ground-raster gis:load-dataset "fourclass_south_v2.asc" ; loads raster for background
-  set village-raster gis:load-dataset "south_villages_1980.asc" ; loads raster for village locations
-  set testing-zones-raster gis:load-dataset "testing_districts.asc" ; loads raster for testing zones
+  set ground-raster gis:load-dataset "land_cover_v3.asc" ; loads raster for background
+  set village-raster gis:load-dataset "village_boundaries.asc" ; loads raster for village locations
+  ;set testing-zones-raster gis:load-dataset "testing_districts.asc" ; loads raster for testing zones
   ; Sets the geographic extent of the world equal to the background data extent
   gis:set-world-envelope gis:envelope-of ground-raster
 
   ; This section applies the raster data (global) to variables owned by patches  
   gis:apply-raster ground-raster land-cover
   gis:apply-raster village-raster village-num
-  gis:apply-raster testing-zones-raster testing-zone
+  ;gis:apply-raster testing-zones-raster testing-zone
   
   ask patches [ if land-cover = 0 [set pcolor gray] ; Plain pixels (not rivers or depressions) are set to gray
     if land-cover = 1 [set pcolor lime] ; Depression pixels are set to the lime color
@@ -253,15 +253,15 @@ to load-gis
   ; ask patches [if land-cover = 3 [set pcolor scale-color brown testing-zone 0 4]]
   
   ; Uncomment the following line of code to see habitable areas by village
-  ;ask patches [if land-cover = 3 [set pcolor scale-color red village-num 1 36]]
+  ask patches [if land-cover = 3 [set pcolor scale-color red village-num 1 33]]
 end
 
 
 ; The following function places actors representing households for each of the 36 villages
 to place-households
   ; The following two lists contain the estimated number of non-canal-owning and canal-owning household per village, respectively
-  let nco-hh [11 11 28 9 9 5 9 5 16 38 127 57 3 3 26 21 45 0 106 33 259 165 28 47 92 141 429 9 24 14 19 143 41 9 5 53]
-  let co-hh [6 2 2 1 3 1 3 2 5 8 9 4 1 1 9 6 5 0 34 2 23 12 1 10 7 10 39 1 3 1 3 13 3 2 1 34]
+  let nco-hh [11 11 28 9 9 5 9 5 16 38 127 57 3 3 26 21 45 0 106 33 259 165 28 47 92 141 429 9 24 14 19 143 41]
+  let co-hh [6 2 2 1 3 1 3 2 5 8 9 4 1 1 9 6 5 0 34 2 23 12 1 10 7 10 39 1 3 1 3 13 3]
     
   ; This populates the study area with each sub-population by village
   populate-group nco-hh 0 orange
@@ -284,12 +284,12 @@ to populate-group [group-list number-of-canals group-color]
     
     ; Creates all of the turtles for a given village
     create-turtles num-group-members [
-      set size 0.7
+      set size 1.2
       set color group-color
       ; If the household is canal-owning, it will start off with one canal. Otherwise, it will start with 0 canals
       set num-canals number-of-canals
       ; Moves the turtle to one of the tiles assigned to one of their village patches
-      move-to one-of patches with [village-num = village-iterator + 1]
+      move-to one-of patches with [village-num = village-iterator + 1 and land-cover = 3]
       ; Randomly positions the turtle within that patch
       set heading 0
       fd random-float 1 - 0.5
@@ -1275,12 +1275,12 @@ end
 @#$#@#$#@
 GRAPHICS-WINDOW
 8
-16
-647
-793
--1
+10
+516
+839
 41
-8.99
+66
+6.0
 1
 10
 1
@@ -1290,10 +1290,10 @@ GRAPHICS-WINDOW
 1
 1
 1
--34
-35
 -41
 41
+-66
+66
 1
 1
 1
@@ -1301,10 +1301,10 @@ ticks
 30.0
 
 BUTTON
-657
-16
-756
-62
+530
+47
+629
+93
 NIL
 setup
 NIL
@@ -1318,10 +1318,10 @@ NIL
 1
 
 BUTTON
-657
-67
-756
-113
+530
+98
+629
+144
 NIL
 go
 NIL
@@ -1335,10 +1335,10 @@ NIL
 1
 
 PLOT
-658
-594
-958
-774
+533
+571
+833
+751
 Total Number of Households
 NIL
 NIL
@@ -1353,20 +1353,20 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot count turtles"
 
 TEXTBOX
-1276
-308
-1426
-327
+1151
+285
+1301
+304
 Household Averages
 15
 0.0
 1
 
 BUTTON
-657
-117
-756
-163
+530
+148
+629
+194
 NIL
 go
 T
@@ -1380,10 +1380,10 @@ NIL
 1
 
 MONITOR
-658
-168
-756
-225
+531
+199
+629
+256
 Current Year
 this-year
 0
@@ -1391,10 +1391,10 @@ this-year
 14
 
 MONITOR
-658
-545
-766
-590
+533
+522
+641
+567
 Total Households
 count turtles
 0
@@ -1402,20 +1402,20 @@ count turtles
 11
 
 TEXTBOX
-783
-20
-946
-47
+656
+51
+819
+78
 Investments & Payoffs
 15
 0.0
 1
 
 PLOT
-657
-350
-958
-534
+532
+327
+833
+511
 Total Number of Canals
 NIL
 Canals
@@ -1430,10 +1430,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot sum [num-canals] of turtles"
 
 PLOT
-963
-350
-1262
-535
+838
+327
+1137
+512
 Total Number of Rice Fields
 NIL
 Fields
@@ -1448,10 +1448,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot sum [num-fields] of turtles"
 
 MONITOR
-657
-303
-738
-348
+532
+280
+613
+325
 Total Canals
 sum [num-canals] of turtles
 17
@@ -1459,10 +1459,10 @@ sum [num-canals] of turtles
 11
 
 MONITOR
-963
-303
-1038
-348
+838
+280
+913
+325
 Total Fields
 sum [num-fields] of turtles
 17
@@ -1470,10 +1470,10 @@ sum [num-fields] of turtles
 11
 
 MONITOR
-1277
-337
-1396
-382
+1152
+314
+1271
+359
 Canals / HH
 sum [num-canals] of turtles / count turtles
 3
@@ -1481,10 +1481,10 @@ sum [num-canals] of turtles / count turtles
 11
 
 MONITOR
-1277
-389
-1396
-434
+1152
+366
+1271
+411
 Rice fields / HH
 sum [num-fields] of turtles / count turtles
 5
@@ -1492,10 +1492,10 @@ sum [num-fields] of turtles / count turtles
 11
 
 MONITOR
-1277
-439
-1397
-484
+1152
+416
+1272
+461
 Wives / HH
 sum [num-wives] of turtles / count turtles
 5
@@ -1503,10 +1503,10 @@ sum [num-wives] of turtles / count turtles
 11
 
 MONITOR
-1276
-495
-1397
-540
+1151
+472
+1272
+517
 HH Size
 sum [num-wives + num-children + num-widows + 1] of turtles / count turtles
 5
@@ -1514,10 +1514,10 @@ sum [num-wives + num-children + num-widows + 1] of turtles / count turtles
 11
 
 PLOT
-965
-594
-1266
-775
+840
+571
+1141
+752
 Average Wealth Per Household (FCFA)
 NIL
 NIL
@@ -1534,10 +1534,10 @@ PENS
 "Bottom 25%" 1.0 0 -2139308 true "" "plot item (round count turtles * .25) sort [total-wealth] of turtles"
 
 SLIDER
-782
-191
-1011
-224
+655
+222
+884
+255
 canal-ownership-threshold
 canal-ownership-threshold
 0
@@ -1549,10 +1549,10 @@ FCFA
 HORIZONTAL
 
 SLIDER
-783
-46
-1010
-79
+656
+77
+883
+110
 income-tax-rate
 income-tax-rate
 0
@@ -1564,10 +1564,10 @@ income-tax-rate
 HORIZONTAL
 
 SLIDER
-782
-152
-1010
-185
+655
+183
+883
+216
 canal-cost
 canal-cost
 0
@@ -1579,10 +1579,10 @@ FCFA
 HORIZONTAL
 
 SLIDER
-781
-117
-1011
-150
+654
+148
+884
+181
 other-marriage-cost
 other-marriage-cost
 0
@@ -1594,10 +1594,10 @@ FCFA
 HORIZONTAL
 
 SLIDER
-782
-82
-1011
-115
+655
+113
+884
+146
 first-marriage-cost
 first-marriage-cost
 0
@@ -1609,10 +1609,10 @@ FCFA
 HORIZONTAL
 
 SLIDER
-1064
-124
-1264
-157
+937
+155
+1137
+188
 bh-revenue-multiplier
 bh-revenue-multiplier
 0
@@ -1624,10 +1624,10 @@ bh-revenue-multiplier
 HORIZONTAL
 
 SLIDER
-1064
-48
-1264
-81
+937
+79
+1137
+112
 boko-haram-start
 boko-haram-start
 1978
@@ -1639,10 +1639,10 @@ boko-haram-start
 HORIZONTAL
 
 SLIDER
-1064
-86
-1265
-119
+937
+117
+1138
+150
 boko-haram-duration
 boko-haram-duration
 0
@@ -1654,20 +1654,20 @@ years
 HORIZONTAL
 
 TEXTBOX
-1067
-22
-1272
-43
+940
+53
+1145
+74
 Changes Due to Boko Haram
 15
 0.0
 1
 
 MONITOR
-1064
-161
-1225
-206
+937
+192
+1098
+237
 Current Revenue Multiplier
 revenue-multiplier
 3
